@@ -1,36 +1,29 @@
-import streamlit as st
+import streamlit as st            # Streamlit 라이브러리를 불러와 웹 앱 형태로 결과를 표시
+import plotly.graph_objects as go # Plotly의 그래프 객체를 사용하기 위한 모듈
+import random                     # 난수(무작위 수) 생성을 위한 모듈
 
-st.set_page_config(page_title="Mood Color App", layout="centered")
+# 주사위 눈 1~6 사이에서 무작위 정수 10개를 생성하여 리스트로 저장
+n = 100
+dice = [random.randint(1, 6) for _ in range(n)]
 
-st.title("🎨 오늘의 기분색")
+fig1 = go.Figure()          # 히스토그램을 위한 Figure 생성
 
-# 기분 - 색상 매핑
-mood_colors = {
-    "😊 행복해요": "#FFE066",
-    "😢 슬퍼요": "#74C0FC",
-    "😡 화가나요": "#FF6B6B",
-    "😴 피곤해요": "#B197FC",
-    "😐 그냥 그래요": "#D3D3D3"
-}
-
-# 사용자 입력
-mood = st.selectbox("오늘 기분이 어떤가요?", list(mood_colors.keys()))
-
-# 선택된 색상
-selected_color = mood_colors[mood]
-
-# CSS로 배경색 적용
-st.markdown(
-    f"""
-    <style>
-    .stApp {{
-        background-color: {selected_color};
-        transition: background-color 0.5s ease;
-    }}
-    </style>
-    """,
-    unsafe_allow_html=True
+# 히스토그램 추가: x축은 주사위 눈 리스트
+fig1.add_trace(             
+    go.Histogram(
+        x=dice,
+        nbinsx=6,               # 막대(bin)의 개수: 주사위 눈(1~6)이라 6개
+        marker_color="skyblue"  # 막대 색상을 빨간색으로 설정
+    )
 )
 
-st.write(f"### 오늘의 기분 색은 `{selected_color}` 입니다!")
+# 그래프 레이아웃 설정
+fig1.update_layout(         
+    title="주사위 던지기 " + str(n) + "번 시행",   # 그래프 제목
+    xaxis_title="주사위 눈",                      # x축 제목
+    yaxis_title="빈도",                          # y축 제목(각 눈이 나온 횟수)
+    bargap=0.2                      # 막대 간격 설정(0에 가까울수록 연결됨)
+)
+fig1.update_yaxes(dtick=1)          # y축 눈금을 정수로 맞춤
 
+st.plotly_chart(fig1)   # Streamlit 화면에 Plotly 그래프 그리기
